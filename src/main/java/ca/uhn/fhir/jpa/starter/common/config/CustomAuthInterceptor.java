@@ -19,11 +19,8 @@ import java.util.List;
 public class CustomAuthInterceptor extends AuthorizationInterceptor {
 
 	final String secretKey = "She saw a sea shell on the sea shore";
-
 	final String url = "jdbc:postgresql://134.209.154.146:5432/mdrdev";
-
 	final String username = "postgres";
-
 	final String password = "Fhir@123";
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Application.class);
@@ -31,7 +28,6 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 	@Override
 	public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
 		String authorizationHeader = theRequestDetails.getHeader("Authorization");
-
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			final var token = authorizationHeader.substring(7);
 
@@ -51,14 +47,6 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 						return new RuleBuilder().denyAll().build();
 					for (String role: roles) {
 						switch (role) {
-							case "doctor":
-								ruleBuilder.allow().create().resourcesOfType("MedicationRequest").withAnyId().andThen()
-									.allow().write().resourcesOfType("MedicationRequest").withAnyId().andThen()
-									.allow().read().allResources().withAnyId().andThen()
-									.deny().create().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
-									.deny().write().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
-									.deny().delete().allResources().withAnyId();
-								break;
 							case "nurse":
 								ruleBuilder.allow().create().allResources().withAnyId().andThen()
 									.allow().read().allResources().withAnyId().andThen()
@@ -66,20 +54,19 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 									.deny().write().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
 									.deny().delete().allResources().withAnyId();
 								break;
+							case "224608005":
+							case "224529009":
+							case "6868009":
+							case "doctor":
+							case "ict":
+								ruleBuilder.allowAll().build();
+								break;
 							case "pharmacist":
 								ruleBuilder.allow().create().resourcesOfType("Medication").withAnyId().andThen()
 									.allow().write().resourcesOfType("Medication").withAnyId().andThen()
 									.allow().read().allResources().withAnyId().andThen()
 									.deny().create().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
 									.deny().write().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
-									.deny().delete().allResources().withAnyId();
-								break;
-							case "ict":		// Role: Front-office staff/Admin
-								ruleBuilder.allow().create().resourcesOfType("Practitioner, PractitionerRole, Organization").withAnyId().andThen()
-									.allow().write().resourcesOfType("Medication").withAnyId().andThen()
-									.allow().read().allResources().withAnyId().andThen()
-									.deny().create().resourcesOfType("Medication, MedicationRequest").withAnyId().andThen()
-									.deny().write().resourcesOfType("Medication, MedicationRequest").withAnyId().andThen()
 									.deny().delete().allResources().withAnyId();
 								break;
 							case "307988006":		// Role: Lab technician
