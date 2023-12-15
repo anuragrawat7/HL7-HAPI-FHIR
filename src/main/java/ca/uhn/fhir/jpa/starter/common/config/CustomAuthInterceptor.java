@@ -9,6 +9,7 @@ import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRule;
 import ca.uhn.fhir.rest.server.interceptor.auth.RuleBuilder;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -31,10 +32,15 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			final var token = authorizationHeader.substring(7);
 
-			Claims claims = Jwts.parser()
-				.setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
-				.parseClaimsJws(token)
-				.getBody();
+			Claims claims = null;
+			try {
+				claims = Jwts.parser()
+					.setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+					.parseClaimsJws(token)
+					.getBody();
+			}catch (MalformedJwtException malformedJwtException){
+				throw new AuthenticationException(Msg.code(401) + "Invalid token.");
+			}
 
 			if (claims.getExpiration().after(new Date())){
 				var userId = claims.get("user_id");
@@ -94,10 +100,10 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 					throw new AuthenticationException(Msg.code(404) + "User does not exist");
 				}
 			} else{
-				throw new AuthenticationException(Msg.code(401) + "Provided token is expired");
+				throw new AuthenticationException(Msg.code(401) + "Token expired.");
 			}
 		}else {
-			return new RuleBuilder().denyAll().build();
+			throw new AuthenticationException(Msg.code(403) + "No token provided.");
 		}
 	}
 
