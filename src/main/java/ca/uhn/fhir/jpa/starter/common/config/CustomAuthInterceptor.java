@@ -8,6 +8,7 @@ import ca.uhn.fhir.rest.server.interceptor.auth.AuthorizationInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRule;
 import ca.uhn.fhir.rest.server.interceptor.auth.RuleBuilder;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 
@@ -40,6 +41,8 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 					.getBody();
 			}catch (MalformedJwtException malformedJwtException){
 				throw new AuthenticationException(Msg.code(401) + "Invalid token.");
+			} catch (ExpiredJwtException expiredJwtException){
+				throw new AuthenticationException(Msg.code(401) + "Token expired.");
 			}
 
 			if (claims.getExpiration().after(new Date())){
@@ -109,7 +112,9 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 
 	private boolean checkUserExistsInDatabase(String userId) {
 
-		String sql = "SELECT count(*) FROM hfj_res_ver WHERE res_id = "  +userId;
+		String sql = "SELECT count(*) FROM hfj_res_ver\n" +
+			"WHERE res_id = " + userId + " AND res_ver = (SELECT MAX(res_ver) FROM hfj_res_ver WHERE res_id = " + userId + ")\n" +
+			"AND res_text_vc LIKE '%\"active\":true%';";
 
 		try (Connection conn = DriverManager.getConnection(url, username, password);
 			  PreparedStatement pstmt = conn.prepareStatement(sql);
