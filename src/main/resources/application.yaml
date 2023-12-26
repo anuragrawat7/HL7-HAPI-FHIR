@@ -14,10 +14,10 @@ spring:
     check-location: false
     baselineOnMigrate: true
   datasource:
-    url: 'jdbc:postgresql://134.209.154.146:5432/mdrdev'
+    url: 'jdbc:postgresql://mdr-database-prod-do-user-308437-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require'
     #url: jdbc:h2:mem:test_mem
-    username: postgres
-    password: Fhir@123
+    username: doadmin
+    password: AVNS_XRHgjkfYuN8Yn8yibo_
     driverClassName: org.postgresql.Driver
     max-active: 15
 
