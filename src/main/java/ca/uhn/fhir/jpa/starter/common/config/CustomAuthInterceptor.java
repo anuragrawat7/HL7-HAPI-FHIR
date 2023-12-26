@@ -47,8 +47,12 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 
 			if (claims.getExpiration().after(new Date())){
 				var userId = claims.get("user_id");
-				if (checkUserExistsInDatabase(userId.toString())){
-					logger.info("UserExist");
+				if (checkUserExistsInDatabase(userId.toString()) == -1){
+					logger.info("NotExist");
+					throw new AuthenticationException(Msg.code(404) + "User does not exist");
+				}
+
+				if (checkUserExistsInDatabase(userId.toString()) > 0){
 					RuleBuilder ruleBuilder = new RuleBuilder();
 					List<String> roles = (List<String>) claims.get("roles");
 					logger.info("---- " + roles);
@@ -96,11 +100,10 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 								break;
 						}
 					}
-					logger.info("----- " + ruleBuilder.build().toString());
 					return ruleBuilder.build();
 				}else{
-					logger.info("NotExist");
-					throw new AuthenticationException(Msg.code(404) + "User does not exist");
+					logger.info("User exist. but is inactive");
+					throw new AuthenticationException(Msg.code(401) + "Unauthorised");
 				}
 			} else{
 				throw new AuthenticationException(Msg.code(401) + "Token expired.");
@@ -110,22 +113,30 @@ public class CustomAuthInterceptor extends AuthorizationInterceptor {
 		}
 	}
 
-	private boolean checkUserExistsInDatabase(String userId) {
+	private int checkUserExistsInDatabase(String userId) {
 
-		String sql = "SELECT count(*) FROM hfj_res_ver\n" +
+		String sql1 = "SELECT count(*) FROM hfj_res_ver\n" +
 			"WHERE res_id = " + userId + " AND res_ver = (SELECT MAX(res_ver) FROM hfj_res_ver WHERE res_id = " + userId + ")\n" +
 			"AND res_text_vc LIKE '%\"active\":true%';";
 
+		String sql2 = "SELECT count(*) FROM hfj_res_ver\n" +
+			"WHERE res_id = " + userId + " AND res_ver = (SELECT MAX(res_ver) FROM hfj_res_ver WHERE res_id = " + userId + ")\n" +
+			"AND res_text_vc LIKE '%\"active\":false%';";
+
 		try (Connection conn = DriverManager.getConnection(url, username, password);
-			  PreparedStatement pstmt = conn.prepareStatement(sql);
-			  ResultSet rs = pstmt.executeQuery()) {
-			if (rs.next()){
-				int count = rs.getInt(1);
-				return count>0;
+			  PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+			  PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+			  ResultSet rs1 = pstmt1.executeQuery();
+			  ResultSet rs2 = pstmt2.executeQuery()) {
+			if (rs1.next() && rs1.getInt(1)==1){
+				return 1;  //If user exist
+			}
+			if (rs2.next() && rs2.getInt(1)==1){
+				return 0; //If user exist, but is inactive
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return false;
+		return -1; //If user exist, not exist
 	}
 }
