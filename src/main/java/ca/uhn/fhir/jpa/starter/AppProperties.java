@@ -59,7 +59,7 @@ public class AppProperties {
   private Integer defer_indexing_for_codesystems_of_size = 100;
   private Long retain_cached_searches_mins = 60L;
   private Long reuse_cached_search_results_millis = 60000L;
-  private String server_address = "https://mdrdev.thelattice.org/fhir";
+  private String server_address = "https://mdr.test.thelattice.org/fhir";
   private EncodingEnum default_encoding = EncodingEnum.JSON;
   private FhirVersionEnum fhir_version = FhirVersionEnum.R4;
   private ClientIdStrategyEnum client_id_strategy = ClientIdStrategyEnum.ALPHANUMERIC;

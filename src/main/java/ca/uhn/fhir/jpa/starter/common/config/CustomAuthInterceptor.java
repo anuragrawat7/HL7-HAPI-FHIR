@@ -21,7 +21,7 @@ import java.util.List;
 public class CustomAuthInterceptor extends AuthorizationInterceptor {
 
 	final String secretKey = "She saw a sea shell on the sea shore";
-	final String url = "jdbc:postgresql://134.209.154.146:5432/mdrdev";
+	final String url = "jdbc:postgresql://64.227.148.33:5432/mdrtest";
 	final String username = "postgres";
 	final String password = "Fhir@123";
 
