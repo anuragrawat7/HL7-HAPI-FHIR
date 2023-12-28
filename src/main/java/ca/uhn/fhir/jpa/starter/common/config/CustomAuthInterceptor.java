@@ -21,7 +21,7 @@ import java.util.List;
 public class CustomAuthInterceptor extends AuthorizationInterceptor {
 
 	final String secretKey = "She saw a sea shell on the sea shore";
-	final String url = "jdbc:postgresql://mdr-database-prod-do-user-308437-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require";
+	final String url = "jdbc:postgresql://mdr-database-prod-do-user-308437-0.c.db.ondigitalocean.com:25061/mdr-prod-pool?sslmode=require";
 	final String username = "doadmin";
 	final String password = "AVNS_XRHgjkfYuN8Yn8yibo_";
 

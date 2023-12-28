@@ -14,7 +14,7 @@ spring:
     check-location: false
     baselineOnMigrate: true
   datasource:
-    url: 'jdbc:postgresql://mdr-database-prod-do-user-308437-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require'
+    url: 'jdbc:postgresql://mdr-database-prod-do-user-308437-0.c.db.ondigitalocean.com:25061/mdr-prod-pool?sslmode=require'
     #url: jdbc:h2:mem:test_mem
     username: doadmin
     password: AVNS_XRHgjkfYuN8Yn8yibo_
@@ -23,7 +23,7 @@ spring:
 
     # database connection pool size
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: 50
   jpa:
     properties:
       hibernate.format_sql: false
