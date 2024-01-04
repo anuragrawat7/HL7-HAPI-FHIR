@@ -23,7 +23,10 @@ spring:
 
     # database connection pool size
     hikari:
-      maximum-pool-size: 10
+      minimum-idle: 5
+      maximum-pool-size: 15
+      idle-timeout: 20000
+      max-lifetime: 120000
   jpa:
     properties:
       hibernate.format_sql: false
